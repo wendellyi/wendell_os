@@ -98,3 +98,9 @@ display_string:
     pop ebp
     ret
     
+display_return:
+    push return_string
+    call display_string
+    add esp, 4
+    ret
+    
