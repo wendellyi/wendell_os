@@ -125,6 +125,7 @@ LABEL_MEM_CHK_OK:
 LABEL_SEG_CODE32:
     mov ax, selector_data
     mov ds, ax
+    mov es, ax
     mov ax, selector_video
     mov gs, ax
     mov ax, selector_stack
@@ -195,13 +196,13 @@ display_mem_size:
     push dword [esi]
     call display_int
     pop eax
-    stosd
+    stosd                                   ; stosd dword ptr es:[edi], eax
     add esi, 4
     dec edx
     cmp edx, 0
     jnz .1
     call display_return
-    cmp dword [ard_type], 1                 ; 判断是否能被OS使用
+    cmp dword [ard_type], 1                 ; 判断是否能被OS使用 cmp dword ptr ds:[], 1
     jne .2                                   ; 直接continue，不参与计算
     mov eax, [base_addr_low]
     add eax, [length_low]

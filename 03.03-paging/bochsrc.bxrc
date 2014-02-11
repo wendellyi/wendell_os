@@ -7,7 +7,7 @@ romimage: file="D:\Program Files (x86)\Bochs-2.6.2/BIOS-bochs-latest"
 vgaromimage: file="D:\Program Files (x86)\Bochs-2.6.2/VGABIOS-lgpl-latest"
 boot: floppy
 floppy_bootsig_check: disabled=0
-floppya: type=1_44, 1_44="E:\Git\wendell_os\03.03-paging\os.img", status=inserted, write_protected=0
+floppya: type=1_44, 1_44="E:\Wendell\Documents\GitHub\wendell_os\03.03-paging\os.img", status=inserted, write_protected=0
 # no floppyb
 ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
 ata0-master: type=none
