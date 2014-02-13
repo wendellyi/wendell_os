@@ -8,7 +8,7 @@ page_tab_base1 equ 0x211000      ; 2M + 64K + 4K
 linear_addr_demo equ 0x00401000
 code_foo_dst equ 0x00401000
 code_bar_dst equ 0x00501000
-code_paging_demo equ 0x00301000
+code_do_paging_demo_dst equ 0x00301000
 
 jmp LABEL_BEGIN                 ; 直接跳转到开始处
 
@@ -29,8 +29,6 @@ selector_code32 equ LABEL_DESC_CODE32-LABEL_GDT
 selector_data equ LABEL_DESC_DATA-LABEL_GDT
 selector_stack equ LABEL_DESC_STACK-LABEL_GDT
 selector_video equ LABEL_DESC_VIDEO-LABEL_GDT
-selector_page_dir equ LABEL_DESC_PAGE_DIR-LABEL_GDT
-selector_page_tab equ LABEL_DESC_PAGE_TAB-LABEL_GDT
 selector_flat_code equ LABEL_DESC_FLAT_CODE-LABEL_GDT
 selector_flat_rw equ LABEL_DESC_FLAT_RW-LABEL_GDT
 
@@ -90,7 +88,7 @@ LABEL_BEGIN:
     mov ds, ax
     mov es, ax
     mov ss, ax
-    mov sp, 0x10000                       ; 使用更大的栈空间，如果使用0x0100 int 0x15会有问题
+    mov sp, 0x1000                       ; 使用更大的栈空间，如果使用0x0100 int 0x15会有问题
     
     ; 获取内存信息，现在是在实模式下
     mov ebx, 0
@@ -259,30 +257,37 @@ code_paging_demo:
     mov ds, ax
     mov ax, selector_flat_rw
     mov es, ax
-    
+    jmp $    
     ; C语言的默认压栈方式，从右向左
     ; 将foo函数的代码加载到指定的内存区域
     push len_code_foo_src
     push offset_code_foo_src
     push code_foo_dst
     call memcpy
-    add esp 12
+    add esp, 12
+
     
     ; 将bar函数的代码加载到指定的内存区域
     push len_code_bar_src
     push offset_code_bar_src
     push code_bar_dst
     call memcpy
-    add esp 12
+    add esp, 12
+    
+    push len_code_do_paging_demo
+    push offset_code_do_paging_demo
+    push code_do_paging_demo_dst
+    call memcpy
+    add esp, 12
     
     mov ax, selector_data
     mov ds, ax
     mov es, ax
     
     call start_paging
-    call selector_flat_code:code_do_paging_demo
+    call selector_flat_code:code_do_paging_demo_dst
     call code_paging_switch
-    call selector_flat_code:code_do_paging_demo
+    call selector_flat_code:code_do_paging_demo_dst
     
     ret
     
@@ -325,7 +330,7 @@ code_paging_switch:
     mov ebx, 4                  ; 页表中每个表项都是4字节
     mul ebx
     add eax, ecx
-    add eax page_tab_base1      ; 得到目标页表项的物理地址
+    add eax, page_tab_base1      ; 得到目标页表项的物理地址
     mov dword [es:eax], code_bar_dst | PG_P | PG_RWW | PG_RWW
                                 ; 上面的操作时修改了此表项内的值（物理页索引）    
     mov eax, page_dir_base1
