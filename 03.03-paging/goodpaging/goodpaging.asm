@@ -74,12 +74,12 @@ bottom_of_stack equ $-LABEL_STACK-1
 
 [SECTION .s16]
 [BITS 16]
-LABEL_BEGIN:    
+LABEL_BEGIN:
     mov ax, cs
     mov ds, ax
     mov es, ax
     mov ss, ax
-    mov sp, 0x10000                       ; 使用更大的栈空间，如果使用0x0100 int 0x15会有问题
+    mov sp, 0x1000                       ; 使用更大的栈空间，如果使用0x0100 int 0x15会有问题
     
     ; 获取内存信息，现在是在实模式下
     mov ebx, 0
